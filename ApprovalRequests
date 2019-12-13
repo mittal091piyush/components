@@ -242,9 +242,15 @@
                     console.log( 'Status --> '+resultList[i].status );
                     map[resultList[i].status] = map[resultList[i].status] || []
                     map[resultList[i].status].push( resultList[i] );
-                }                
-                console.log( 'map --> '+JSON.stringify( map ) );
-                component.set("v.dataMap", map);
+                }           
+                var custs = [];
+                for(var key in map){
+                    custs.push({value:map[key], key:key});
+                }
+                console.log( 'map --> '+JSON.stringify( custs ) );
+                component.set("v.dataMap", custs );
+                var dataMap = component.get( "v.dataMap" );
+                console.log( 'Map value --> '+dataMap )
                 component.set('v.WorkitemList', resultList);
                 console.log(component.get('v.WorkitemList'));
             }else{
