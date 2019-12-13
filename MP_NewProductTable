@@ -1,0 +1,223 @@
+~~~~~ COMPONENT ~~~~~
+<!-- MP_NewProductTable -->
+<aura:component implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global"
+                controller="MP_NewProductTable_cc">
+    <!-- Attributes -->
+    <aura:attribute name="ProductCategory" type="String"/>
+    <aura:attribute name="filteredData" type="List" />
+    <aura:attribute name="allData" type="Object" />
+    <aura:attribute name="showTable" type="Boolean" default="false" />
+    <aura:attribute type="Integer" name="pageNumber" default="1" />
+    <aura:attribute type="Integer" name="maxPage" default="1" />
+    <aura:attribute type="Integer" name="pageSize" default="5" />
+    <!-- Attributes -->
+    
+    <!-- Handler -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInIt}" />
+    <aura:handler name="change"	value="{!v.pageNumber}"	action="{!c.renderPage}" />
+    <!-- Handler -->
+    
+    <aura:if isTrue="{!v.showTable}" >        
+        <!-- Playground Code -->
+        <div>
+            <div style="height:10vh;background:black;">
+            </div>
+            <div style="height:5vh;background:white;">
+            </div>
+            <div>
+                <div style="width:100%;background-color: #faf7f5;height:55px;">
+                    <button type="button" style="background:#FFFFFF;font-size: 15px;color: black;height:35px;width:200px;margin-top:15px;">Back</button>
+                    <button type="button" style="background:#FFFFFF;font-size: 15px;color: black;height:35px;width:200px;margin-top:15px;">Filter Option</button>
+                    <span style="margin-right:10px;margin-left:10px;color:#eb4034;">x Clear</span> 
+                    <span style="font-weight:bold;float:right;">Total {!v.allData.dataList.length} | SELECTED TO ADD</span>        
+                </div>
+                <div>
+                    <aura:if isTrue="{!$Browser.isPhone == false}">
+                        <c:dataPagination currentPageNumber="{!v.pageNumber}" 
+                                          maxPageNumber="{!v.maxPage}" />
+                    </aura:if>    
+                    <input type="text" class="slds-input slds-combobox__input" id="combobox-id-3" aria-autocomplete="list" aria-controls="search-listbox-id-3" autoComplete="off" role="textbox" placeholder="Search File and Folders" onkeyup="{! c.handleonKeyUpSearch }" onblur="{!c.handleOnBlur}"/>    
+                </div>
+                <div style="overflow:scroll;height:250px;" >
+                    <table aria-multiselectable="true" class="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols" >
+                        <thead>
+                            <tr>
+                                <th class="slds-text-align_right" scope="col" style="width:3.25rem;background-color: black;color:white;" >                    
+                                    <div class="slds-th__action slds-th__action_form">  
+                                        <ui:inputCheckbox aura:id="checkbox" label="" change="{!c.onCheck}"/>  
+                                    </div>
+                                </th>
+                                <aura:iteration items="{!v.allData.colList}" var="item" indexVar="index" >                                                                                                            
+                                    <th aria-label="Name" aria-sort="none" class="slds-is-resizable slds-is-sortable" scope="col" style="background-color: black;color:white;" >
+                                        <a class="slds-th__action slds-text-link_reset" href="javascript:void(0);" role="button" tabindex="0">                      
+                                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                <span class="slds-truncate" >{!item.Name__c}</span>
+                                                <span class="slds-icon_container slds-icon-utility-arrowdown">
+                                                    <div></div>
+                                                </span>
+                                            </div>
+                                        </a>
+                                    </th>                                                                                                            
+                                </aura:iteration>
+                            </tr>	
+                        </thead>                        
+                        <tbody>
+                            <aura:iteration items="{!v.filteredData}" var="item" indexVar="index" > 
+                                <tr aria-selected="false" class="slds-hint-parent">
+                                    <td class="slds-text-align_right" role="gridcell">
+                                        <ui:inputCheckbox aura:id="checkbox1" label="" />  
+                                    </td>
+                                    <td role="gridcell">
+                                        <div class="slds-truncate" >{!item.Name}</div>
+                                    </td>
+                                    <td role="gridcell">
+                                        <div class="slds-truncate" >{!item.AccountNumber}</div>
+                                    </td>
+                                    <td role="gridcell">
+                                        <div class="slds-truncate" >{!item.Chain_Name__c}</div>
+                                    </td>
+                                    <td role="gridcell">
+                                        <div class="slds-truncate" >{!item.Chain_Number__c}</div>
+                                    </td>
+                                    <td role="gridcell">
+                                        <div class="slds-truncate" >{!item.ShippingPostalCode}</div>
+                                    </td>
+                                    <td role="gridcell">
+                                        <div class="slds-truncate" >{!item.Industry}</div>
+                                    </td>
+                                </tr>
+                            </aura:iteration>    
+                        </tbody>    
+                    </table>
+                </div>
+            </div>
+            <div style="background:white;">
+            </div>
+        </div>	
+        <!-- Playground Code -->
+    </aura:if>
+</aura:component>
+
+~~~~~ CONTROLLER ~~~~~
+({
+	doInIt : function(component, event, helper) {
+    	console.log( 'In Method --> ' );
+        var action = component.get("c.fetchListOfTableColumns");
+        action.setParams({ productCategory : component.get("v.ProductCategory") });
+        action.setCallback(this, function(response){
+            var state = response.getState();
+            if( state=== 'SUCCESS' ){
+                component.set( "v.showTable", true );	
+                console.log( 'response --> '+JSON.stringify(response.getReturnValue()) );                
+                component.set( "v.allData", response.getReturnValue() );
+                var dataList = component.get("v.allData.dataList");
+                component.set( "v.filteredData", dataList ); 
+                var dataRows = component.get("v.allData.dataList");
+                var size = dataRows.length;                
+                console.log( 'size --> '+size );
+                var pageSize = component.get("v.pageSize");
+                var maxPageNum;
+                if( size/pageSize === 0 ){
+                    maxPageNum = Math.floor( size/pageSize );
+                }else{ maxPageNum = Math.floor( size/pageSize ) + 1; }                
+                component.set("v.maxPage", maxPageNum);
+                var pageNumber = component.get( "v.pageNumber" );
+                var pageSize = component.get( "v.pageSize" );
+                console.log( 'maxPageNum --> '+maxPageNum );
+                console.log( 'pageNumber --> '+pageNumber );
+                console.log( 'pageSize --> '+pageSize );
+                var pageRecords = dataRows.slice((pageNumber-1)*pageSize, pageNumber*pageSize);
+                component.set("v.filteredData", pageRecords);
+                
+            }
+        });
+        $A.enqueueAction(action);    
+                     
+	},
+    onCheck : function( component,event,helper ){    	
+        var resultCmp = component.find("checkbox1");
+        var checkCmp = component.find("checkbox");
+        var value = checkCmp.get("v.value");
+        console.log( 'In onCheck --> '+value );
+        for (var i = 0; i < resultCmp.length; i++){
+            resultCmp[i].set("v.value",value);
+        }        
+    },    
+    handleonKeyUpSearch : function(component, event, helper) {       
+        helper.handleonKeyUpSearchHelper(component, event, helper);       
+    },
+    handleOnBlur : function(component, event, helper) {
+        console.log( 'In onBlur --> ' );        
+        var dataList = component.get( "v.allData.dataList" );
+        component.set("v.filteredData",dataList);
+        component.set("v.pageNumber",0);
+        component.set("v.pageNumber",1);
+        console.log( 'Page Num --> '+component.get( "v.pageNumber" ));
+    },
+    renderPage : function( component,event,helper ){
+        console.log( 'In Render Controller -->' );
+        helper.renderPage( component,event,helper );
+    }
+})
+
+~~~~~ HELPER ~~~~~
+({
+	handleonKeyUpSearchHelper: function(component, event, helper) {        
+        var _searchVar = event.target.value;
+        console.log( '_searchVar --> '+_searchVar );
+        var _allData = component.get("v.allData.dataList"); 
+        console.log( '_allData --> '+_allData );
+        console.log( '_allData --> '+_allData.length );
+        var _filterData = [];
+        if(  _searchVar != undefined && _searchVar  != '' ){
+            var _regex = new RegExp(_searchVar, "i");
+            
+            for (var i = 0; i < _allData.length; i++){
+                console.log( 'Name --> '+_allData[i].Name );
+                
+                if( _allData[i].Name != null && _allData[i].Name != undefined && _allData[i].Name.search( _regex ) != -1 ){
+                    _filterData.push( _allData[i] );
+                }
+            } 
+                        
+            console.log('_filterData --> '+_filterData); 
+            component.set("v.filteredData",_filterData);
+        }else{
+            component.set("v.filteredData",component.get("v.allData.dataList"));
+        }
+    },
+    renderPage: function(component,event,helper) {
+        console.log('renderPage');
+        var viewData = component.get("v.allData");
+        var records = viewData.dataList;            
+        console.log('Grid Type: ' + component.get('v.gridType'));
+        console.log('### renderPage - rowHeight: ' + viewData.rowHeight);
+        console.log('### renderPage - rowHeightTablet: ' + viewData.rowHeightTablet);
+        console.log('Records: ' + JSON.stringify(records));
+        var device = $A.get("$Browser.formFactor");
+
+        if( device != 'PHONE' ){                        
+            
+            
+            var pageSize = component.get("v.pageSize");
+            console.log( 'pageSize --> '+pageSize );
+            if (records != null && records.length > 0) {
+                console.log('In If --> ');
+                var pageNumber = component.get("v.pageNumber");                
+                var pageRecords = records.slice((pageNumber-1)*pageSize, pageNumber*pageSize);
+                component.set("v.filteredData", pageRecords);
+                component.set("v.maxPage", Math.floor((records.length+(pageSize - 1))/pageSize));
+            }
+           
+        }
+        else {
+            component.set("v.filteredData", records);
+        }
+        
+	}
+})
+
+~~~~~ STYLE ~~~~~
+.THIS .orangeColor{
+    background-color:orange;
+}
