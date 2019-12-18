@@ -1,0 +1,611 @@
+COMPONENT
+<aura:component implements="flexipage:availableForRecordHome,force:hasRecordId,lightning:actionOverride"
+                access="global" controller="Mashups_CC">
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="paramList" type="Map" default="{}" />
+    <aura:attribute name="isPhone" type="String" default="{!$Browser.formFactor == 'PHONE'}" />
+    <aura:attribute name="fieldMap" type="Map" default="{}" />
+    <aura:attribute name="IframeUrl" type="String" default="" />  
+   
+    <div style="width:100%">
+        <aura:if isTrue="{!($Browser.formFactor != 'DESKTOP')}">
+           
+            <lightning:recordViewForm recordId="{!v.recordId}" objectApiName="Order_Item_Approval__c">
+                <!-- HEADER -->
+                <div class="slds-page-header">
+                    <div class="slds-grid">
+                        <div class="slds-col slds-has-flexi-truncate">
+                            <div class="slds-media slds-no-space slds-grow">
+                                <div class="slds-media__figure">
+                                    <span class="slds-icon_container slds-icon-standard-account" title="Order Item Approval">
+                                        <lightning:icon iconName="standard:custom" alternativeText="Order Item Approval" size="{!if($Browser.formFactor != 'DESKTOP','medium','')}"/>
+                                    </span>
+                                </div>
+                                <div class="slds-media__body">
+                                    <nav>
+                                        <ol class="slds-breadcrumb slds-line-height_reset">
+                                            <li class="slds-breadcrumb__item slds-truncate headerTitle">
+                                                <span>Order Item Approval</span>
+                                            </li>
+                                        </ol>
+                                    </nav>
+                                    <h1 class="slds-page-header__title slds-m-right_small slds-align-middle slds-truncate headerSubTitle" title="OrderNumber">
+                                    <lightning:outputField fieldName="Order_Number__c" variant = "label-hidden"  />
+                                    </h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- HEADER -->
+                <lightning:tabset selectedTabId="viewOrder">
+                    <lightning:tab label="View Order" id="viewOrder">
+                        <div class="slds-p-around--small">
+                            <aura:html class="iframeTag" tag="iframe" src="{!v.IframeUrl}" style="min-height:600px;width:100%" />
+                        </div>
+                    </lightning:tab>
+                    <lightning:tab label="Detail" id="detail">
+                        <div class="{! 'slds-form ' + (v.isPhone ? 'slds-form_stacked' : 'slds-form_compound')}" style="padding-top: .75rem">
+                            <fieldset class="slds-form-element">
+                                <div class="slds-form-element__group">
+                                    <div class="slds-form-element__row">
+                                        <div class="{! 'slds-form-element slds-p-horizontal--medium' + ' ' +  (v.isPhone ? 'slds-size--1-of-1' : 'slds-size--1-of-2' )}">
+                                            <lightning:outputField fieldName="Product__c" />
+                                        </div>
+                                        <div class="{! 'slds-form-element slds-p-horizontal--medium' + ' ' +  (v.isPhone ? 'slds-size--1-of-1' : 'slds-size--1-of-2' )}">
+                                            <lightning:outputField fieldName="Approval_Status__c" />
+                                        </div>
+                                    </div>
+                                </div>
+                               
+                                <div class="slds-form-element__group">
+                                    <div class="slds-form-element__row">
+                                        <div class="{! 'slds-form-element slds-p-horizontal--medium' + ' ' +  (v.isPhone ? 'slds-size--1-of-1' : 'slds-size--1-of-2' )}">
+                                            <lightning:outputField fieldName="Account_Name__c" />
+                                        </div>
+                                        <div class="{! 'slds-form-element slds-p-horizontal--medium' + ' ' +  (v.isPhone ? 'slds-size--1-of-1' : 'slds-size--1-of-2' )}">
+                                            <lightning:outputField fieldName="Global_Account_Id__c" />
+                                        </div>
+                                    </div>
+                                </div>
+                               
+                                <div class="slds-form-element__group">
+                                    <div class="slds-form-element__row">
+                                        <div class="{! 'slds-form-element slds-p-horizontal--medium' + ' ' +  (v.isPhone ? 'slds-size--1-of-1' : 'slds-size--1-of-2 ' )}">
+                                           
+                                        </div>
+                                        <div class="{! 'slds-form-element slds-p-horizontal--medium' + ' ' +  (v.isPhone ? 'slds-size--1-of-1' : 'slds-size--1-of-2 ' )}">
+                                           
+                                        </div>
+                                    </div>
+                                </div>
+                               
+                                <div class="slds-form-element__group">
+                                    <div class="slds-form-element__row">
+                                        <div class="{! 'slds-form-element slds-p-horizontal--medium' + ' ' +  (v.isPhone ? 'slds-size--1-of-1' : 'slds-size--1-of-2 ' )}">
+                                           
+                                        </div>
+                                        <div class="{! 'slds-form-element slds-p-horizontal--medium' + ' ' +  (v.isPhone ? 'slds-size--1-of-1' : 'slds-size--1-of-2 ' )}">
+                                           
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                       
+                    </lightning:tab>
+                   
+                </lightning:tabset>
+            </lightning:recordViewForm>
+            <aura:set attribute="else">
+                <aura:html class="iframeTag" tag="iframe" src="{!v.IframeUrl}" style="min-height:600px;width:100%" />
+            </aura:set>
+        </aura:if>
+    </div>
+</aura:component>
+
+CONTROLLER
+({
+doInit : function(component, event, helper) {
+       
+        var action = component.get("c.getOrderDetail");
+        action.setParams({
+            "recordId" : component.get('v.recordId')
+        });
+       
+        action.setCallback(this, function(response){
+            if(component.isValid() && response !== null && response.getState() == 'SUCCESS'){
+                var result = response.getReturnValue();
+                console.log('result: ' + result);
+                component.set('v.IframeUrl', result);
+            }
+        });
+       
+        $A.enqueueAction(action);
+}
+})
+
+HELPER
+({
+helperMethod : function() {
+
+}
+})
+
+CSS
+.THIS {
+    background-color: white;
+}
+
+APEX CLASS
+/**************************************************************************
+
+Name : MashupSettingController
+
+===========================================================================
+Purpose : to fetch Hybris & Tableau URLs from "Custom Settings" - "Mashup" List by name
+===========================================================================
+History:
+--------
+VERSION    AUTHOR         DATE           DETAIL          DESCRIPTION
+1.0        Vivek          15/Feb/2017    Created         CSR:
+
+METHODS IN USE:
+- validateProfileName(String str)
+- getMashupRecordNew(String mashupName, String recordId)
+- getUrlByName(String mashupName) -- but LE component not in use
+- getObjectNameById(String recordId) -- but LE component not in use
+- mashupUrl(Mashup_Management__c mashup, Boolean isResidential, Boolean isCommercial)
+
+***************************************************************************/
+public without sharing class Mashups_CC {
+
+    //Added by Susmitha for US 54451 on March 23,2018
+    public class wrapperClassDisplayNames
+    {
+        @AuraEnabled
+        public List <Mashup_Management__c> BusinessOverviewMashupRecords{get;set;}
+        @AuraEnabled
+        public List <Mashup_Management__c> AccountOverviewMashupRecords{get;set;}
+        @AuraEnabled
+        public List <Mashup_Management__c> BOCommercialMashupRecords{get;set;}
+       
+    }
+    //Added by Susmitha for US 54451 on March 23,2018
+    @AuraEnabled
+    public static wrapperClassDisplayNames getMashupRecordDisplayNames(Id recordId)
+    {
+        //list<Mashup_Management__c> mashupRecValues = Mashup_Management__c.getall().values();
+        list<Mashup_Management__c> mashupRecValues = [ SELECT id,
+                                                              Name,  
+                                                              Alternate_URL__c,
+                                                              Display_Name__c,
+                                                              Dropdown__c,
+                                                              Group__c,
+                                                              Icon__c,
+                                                              Icon_BG_Color__c,
+                                                              Is_Active__c,
+                                                              Is_Publisher_Action__c,
+                                                              No_Query_String__c,
+                                                              Object__c,
+                                                              Object_Record_Type__c,
+                                                              Profile__c,
+                                                              Query_String__c,
+                                                              Sort_Order__c,
+                                                              Target_URL__c,
+                                                              Type__c,
+                                                              User_Profile__c FROM Mashup_Management__c ORDER BY Sort_Order__c ASC];
+        String busiType = [SELECT Business_Type__c from User where Id =: UserInfo.getUserId()].Business_Type__c;
+        wrapperClassDisplayNames wrd =new wrapperClassDisplayNames();
+       
+        wrd.BusinessOverviewMashupRecords=new List<Mashup_Management__c>();
+        wrd.AccountOverviewMashupRecords=new List<Mashup_Management__c>();
+        wrd.BOCommercialMashupRecords = new List<Mashup_Management__c>();
+       
+        for(Mashup_Management__c mm: mashupRecValues){
+            if(busiType == UtilityCls.RESIDENTIAL){
+                if(mm.Dropdown__c!=null && mm.Dropdown__c=='Business Overview'){
+                    wrd.BusinessOverviewMashupRecords.add(mm);
+                    String finalURL = '';
+               //New code added for  bug 65617 on  Sep 24,2018
+                    if(UtilityCls.isStrNotNull(mm.Alternate_URL__c) && UtilityCls.isStrNotNull(mm.User_Profile__c) && customerPriceListProfileBasedUrl(mm.User_Profile__c))
+                    {
+                        finalUrl = mm.Alternate_URL__c;
+                        system.debug('finalUrl alt:'+finalUrl);
+                        if(finalURL != null || finalURL != ''){
+                            mm.Target_URL__c = finalURL;
+                        }
+                       
+                    }
+                }
+                else if(mm.Dropdown__c!=null && mm.Dropdown__c=='Account Overview'){
+                    String finalURL = '';
+                    if(recordId != null){
+                        finalURL = getMashupRecordNew(mm.Name, recordId, '');
+                        system.debug('finalURL' + finalURL);
+                        if(finalURL != null || finalURL != ''){
+                            mm.Target_URL__c = finalURL;
+                        }
+                    }
+                    wrd.AccountOverviewMashupRecords.add(mm);
+                }
+            }else if(mm.Dropdown__c!=null && mm.Dropdown__c=='BO Commercial' && busiType == UtilityCls.COMMERCIAL){
+                wrd.BOCommercialMashupRecords.add(mm);
+            }
+        }
+        System.debug('Display Names: ' + wrd);
+        return wrd;      
+    }
+   
+   
+    @AuraEnabled
+    public static Mashups__c getUrlByName(String mashupName){
+        //Mashups__c mashup = Mashups__c.getInstance('Order');
+       
+        Mashups__c mashup = Mashups__c.getInstance(mashupName);
+        System.debug(mashup);
+        return mashup;
+    }
+   
+    public static boolean validateProfileName(String str){
+        String profileName = [SELECT Name from Profile where id =: UserInfo.getprofileId()].Name;
+        if(profileName.contains(str)){
+            return true;
+        }
+        return false;
+    }
+   
+    @AuraEnabled
+    public static String getUIThemeDescription() {
+        String theme = UserInfo.getUiThemeDisplayed();
+        return theme;
+    }
+   
+    public static String getObjectSoql(String recordId, String sObjName, Boolean isRecordTypeAvail) {
+        /*ID rId = recordId;
+String sObjName = rId.getSObjectType().getDescribe().getName();*/
+       
+        String soql = 'SELECT ' + UtilityCls.getObjectFieldsForSql(sObjName);
+        if(isRecordTypeAvail)
+            soql += ', RecordType.DeveloperName';
+       
+        soql += ' FROM ' + sObjName + ' WHERE Id = \''+ recordId +'\'';
+        System.debug(soql);
+        return soql;
+    }
+   
+    @AuraEnabled
+    public static SObject getRecordById(String recordId) {// 05/17/2017
+        SObject objectData = new Account();
+        objectData = Database.query(getObjectSoql(recordId, getObjectNameById(recordId), false));
+        return objectData;
+    }
+   
+    @AuraEnabled
+    public static String getRecordsByGroup(String recordId, String mashupType) {
+        SObject objectData = new Account();
+       
+        String objectName = getObjectNameById(recordId);
+        Boolean isRecordTypeAvail = MashupUtility_CC.isRecordTypeAvailOnObject(objectName);
+        String currentRecordType = '';
+       
+        if(UtilityCls.isStrNotNull(recordId)) {
+            objectData = Database.query(getObjectSoql(recordId, objectName, isRecordTypeAvail));
+        }
+        if(objectData!=null){
+            currentRecordType = (isRecordTypeAvail?(String)objectData.getSObject('RecordType').get('DeveloperName'):'All');
+        }
+       
+        Map<String, Map<String,list<Mashup_Management__c>>> groupMap = new Map<String, Map<String,list<Mashup_Management__c>>>();
+       
+        groupMap = MashupUtility_CC.getRecordsByMashupType(objectData, mashupType, objectName, currentRecordType, UtilityCls.validateProfileByName(UtilityCls.RESIDENTIAL), UtilityCls.validateProfileByName(UtilityCls.COMMERCIAL));
+       
+        System.debug('groupMap:' + groupMap);
+        MashupResultHandler result = new MashupResultHandler();
+        result.groupData = groupMap;
+        system.debug(result);
+        return JSON.serialize(result);
+    }
+   
+    Class MashupResultHandler{
+        @AuraEnabled
+        Public Map<String, Map<String,list<Mashup_Management__c>>> groupData;
+       
+    }
+   
+    // 04/19/2017
+    @AuraEnabled
+    public static String getMashupRecordNew(String mashupName, String recordId, String gridProductId) {
+        SObject objectData = new Account();
+       
+        if(recordId != null && UtilityCls.isStrNotNull(recordId) && recordId != 'NA') {
+            /*ID rId = recordId;
+String sObjName = rId.getSObjectType().getDescribe().getName();
+
+String soql = 'SELECT ' + UtilityCls.getObjectFieldsForSql(sObjName) + ' FROM ' + sObjName + ' WHERE Id =: rId';
+System.debug(soql);*/
+            objectData = Database.query(getObjectSoql(recordId, getObjectNameById(recordId), false));
+        }
+       
+        String finalUrl = '';
+        Boolean isCommercial = UtilityCls.validateProfileByName(UtilityCls.COMMERCIAL);
+        Boolean isResidential = UtilityCls.validateProfileByName(UtilityCls.RESIDENTIAL);
+       
+        //isResidential = true;
+        Mashup_Management__c rData = new Mashup_Management__c();
+       
+        Mashup_Management__c mashup = Mashup_Management__c.getInstance(mashupName);
+       
+        if(mashup!=null && mashup.Grid__c == false){
+            finalUrl = mashupUrl(mashup, isResidential, isCommercial);
+            system.debug('finalUrl :::::::'+finalUrl);//Added debug by Susmitha
+            if(UtilityCls.isStrNotNull(finalUrl) == false && mashupName.contains('--')){
+                List<String> strArr = mashupName.split('--');
+                String newMashup = '';
+                if(strArr[1].trim().equals('Residential'))
+                    newMashup = strArr[0] + '-- ' + 'Commercial';
+                else if(strArr[1].trim().equals('Commercial'))
+                    newMashup = strArr[0] + '-- ' + 'Residential';
+                System.debug('newMashup: ' + newMashup);
+                if(UtilityCls.isStrNotNull(newMashup)){
+                    mashup = Mashup_Management__c.getInstance(newMashup);
+                    if(mashup!=null){//Added by susmitha on April 5,2018 //formatted
+                        finalUrl = mashupUrl(mashup, isResidential, isCommercial);
+                        System.debug('new finalUrl:' + finalUrl);
+                    }
+                }
+            }
+            /*
+old logic auto-get mashup URL for Price Grid; above code will be used as common for all Hamburger items 04/25/2017
+if(mashupName == 'Price Grids - Residential' && UtilityCls.isStrNotNull(finalUrl) == false){
+mashup = Mashup_Management__c.getInstance('Price Grids - Commercial');
+finalUrl = mashupUrl(mashup, isResidential, isCommercial);
+}*/
+           
+            if(UtilityCls.isStrNotNull(finalUrl)){
+                mashup.Target_URL__c = finalUrl;
+                finalUrl = MashupUtility_CC.buildQueryStringForMashupUrl(mashup, finalUrl, objectData, new Map<String,String>());
+                rData = mashup;
+            }
+        }else if(mashup!=null && mashup.Grid__c){ //Start of Code - MB - 5/3/18 - Developed as part of Grid User stories
+            if(gridProductId != null){
+                String hybrisProdCode = '';
+                String custGrpNumber = '';
+                for(Product_Customer_Group_Relationship__c prodCusGrpRel : [SELECT Customer_Group_Number__c, Hybris_Product_Code__c FROM Product_Customer_Group_Relationship__c
+                                                                            WHERE Product__c =: gridProductId ]){
+                                                                                if(UtilityCls.isStrNotNull(recordId) && recordId != 'NA'){
+                                                                                    custGrpNumber = '000000;'; //Added by MB - Bug 83203 - 11/19/19
+                                                                                    if(objectData.get('Customer_Group_Number__c') != null){
+                                                                                        custGrpNumber += (String)objectData.get('Customer_Group_Number__c');
+                                                                                    }
+                                                                                    if(custGrpNumber.contains(prodCusGrpRel.Customer_Group_Number__c)){
+                                                                                        hybrisProdCode = prodCusGrpRel.Hybris_Product_Code__c;
+                                                                                        break;
+                                                                                    }
+                                                                                }else if(!UtilityCls.isStrNotNull(recordId) || recordId == 'NA'){
+                                                                                    hybrisProdCode = prodCusGrpRel.Hybris_Product_Code__c;
+                                                                                    break;
+                                                                                }
+                                                                            }
+                System.debug('Query String Initial : ' + mashup.Query_String__c);
+                String urlTemp = mashup.Target_URL__c;
+                String queryString = mashup.Query_String__c;
+                String newValue = '';
+                /*List<String> qryStrArr = queryString.split(';;'); - Commented by MB - Bug 83203 - 11/19/19
+                System.debug('Query String Array : ' + qryStrArr);
+                for(String str : qryStrArr) {
+                    if(UtilityCls.isStrNotNull(str)){
+                        List<String> valueArr = str.split('=');
+                        if(UtilityCls.isStrNotNull(valueArr[0]) && urlTemp.Contains(valueArr[0])){
+                            System.debug('Object : ' + objectData);
+                            System.debug('valueArr : ' + valueArr);
+                            newValue = ((valueArr[0] == 'HYBRIS_ID' || valueArr[0] == 'hybrisId') ? hybrisProdCode : (String)objectData.get(valueArr[1]));
+                            newValue = (UtilityCls.isStrNotNull(newValue) ? newValue : 'NO_'+valueArr[0]);
+                            urlTemp = urlTemp.replace(valueArr[0], newValue);
+                        }
+                    }
+                }*/
+                //Start of Code - MB - Bug 83203 - 11/19/19
+                if(objectData.get('Global_Account_Number__c') != null){
+                    urlTemp = urlTemp.replace('GLOBAL_ACCOUNT_NUMBER', (String)objectData.get('Global_Account_Number__c'));
+                }
+                urlTemp = urlTemp.replace('HYBRIS_ID', hybrisProdCode);
+                //End of Code - MB - Bug 83203 - 11/19/19
+                finalUrl = urlTemp;
+            }else{
+                finalUrl = mashup.Target_URL__c;
+            }
+            System.debug('new finalUrl:' + finalUrl);
+        }
+        return finalUrl;
+    }
+   
+    public static String mashupUrl(Mashup_Management__c mashup, Boolean isResidential, Boolean isCommercial) {
+        String finalUrl = '';
+        System.debug('Testing mashup: '+mashup);
+        if(mashup.Is_Active__c == true && mashup.Is_Publisher_Action__c == true){
+            if(mashup.Profile__c == 'All')
+                finalUrl = mashup.Target_URL__c;
+            else if(isCommercial && mashup.Profile__c == UtilityCls.COMMERCIAL)
+                finalUrl = mashup.Target_URL__c;
+            else if(isResidential && mashup.Profile__c == UtilityCls.RESIDENTIAL)
+            {
+                //Added Logic to check get alternate url
+                if(UtilityCls.isStrNotNull(mashup.Alternate_URL__c) && UtilityCls.isStrNotNull(mashup.User_Profile__c) && customerPriceListProfileBasedUrl(mashup.User_Profile__c))
+                {
+                    system.debug('finalUrl alt:'+finalUrl);
+                    finalUrl = mashup.Alternate_URL__c;
+                    system.debug('finalUrl alt:'+finalUrl);
+                   
+                }else
+                    finalUrl = mashup.Target_URL__c;
+            }
+           
+            // to handle null value on non commercial/residential profiles and display commercial record 04/18/2017
+            if(UtilityCls.isStrNotNull(finalUrl) == false && !isResidential && !isCommercial) //  && mashup.Profile__c == UtilityCls.COMMERCIAL
+                finalUrl = mashup.Target_URL__c;
+        }
+        system.debug('finalUrl :'+finalUrl);
+        return finalUrl;
+    }
+   
+    //Used in Clone Quote functionality
+    @AuraEnabled
+    public static Mashup_Management__c getMashupRecord(String mashupName) {
+        String finalUrl = '';
+        Boolean isCommercial = validateProfileName(UtilityCls.COMMERCIAL);
+        Boolean isResidential = validateProfileName(UtilityCls.RESIDENTIAL);
+       
+        Mashup_Management__c rData = new Mashup_Management__c();
+       
+        Mashup_Management__c mashup = Mashup_Management__c.getInstance(mashupName);
+        if(mashup.Is_Active__c == true && mashup.Is_Publisher_Action__c == true){
+           
+            if(mashup.Profile__c == 'All')
+                finalUrl = mashup.Target_URL__c;
+            else if(isCommercial && mashup.Profile__c == UtilityCls.COMMERCIAL)
+                finalUrl = mashup.Target_URL__c;
+            else if(isResidential && mashup.Profile__c == UtilityCls.RESIDENTIAL)
+                finalUrl = mashup.Target_URL__c;
+           
+            // to handle null value on non commercial/residential profiles and display commercial record 04/18/2017
+            if(UtilityCls.isStrNotNull(finalUrl) == false && !isResidential && !isCommercial && mashup.Profile__c == UtilityCls.COMMERCIAL)
+                finalUrl = mashup.Target_URL__c;
+           
+            if(UtilityCls.isStrNotNull(finalUrl)){
+                mashup.Target_URL__c = finalUrl;
+                rData = mashup;
+            }
+        }
+       
+        return rData;
+    }
+   
+    // @AuraEnabled
+    public static String getObjectNameById(String recordId){
+        ID rId = recordId;
+        String sObjName = rId.getSObjectType().getDescribe().getName();
+        System.debug(sObjName);
+       
+        return sObjName;
+       
+    }
+   
+    @AuraEnabled
+    public static List<sObject> getObjectRecord(String apiName, String recordId, String fields){
+        String objType = getObjectNameById(recordId); //Added by MB - 2/21/18
+        List<sObject> records = Database.query('SELECT ' + fields + ' FROM ' + objType + ' WHERE Id =: recordId'); //Replaced apiName with objType - MB - 2/21/18
+        return records;
+    }
+   
+    // Added by MB - 5/31/17
+    @AuraEnabled
+    public static String getAccountProfileId(String recordId){
+        Account acc = Database.query('SELECT Id, Account_Profile__c FROM Account WHERE Id =: recordId');
+        system.debug(acc.Account_Profile__c);
+        return acc.Account_Profile__c;
+    }
+   
+    //Start Added by Lakshman - 10/10/2017 US-30642
+    public static Boolean customerPriceListProfileBasedUrl(String userProfiles)
+    {
+        //Get Currently Logged in User Profile Name
+        String profileName = UtilityCls.getProfileName(UserInfo.getprofileId());
+       
+        //UserProfiles from custom Settings for customer Price List
+        List<String> lstUserProfiles = userProfiles.split(',');
+        system.debug('lstUserProfiles : '+lstUserProfiles);
+        //Check the current user is from userProfiles of the customer price list.
+        Set<String> setUserProfile = new Set<String>();
+        setUserProfile.addAll(lstUserProfiles);
+       
+        system.debug('setUserProfile : '+setUserProfile);
+        return setUserProfile.contains(profileName);
+    }
+    //End Added by Lakshman - 10/10/2017 US-30642
+   
+    //Start ADDED BY MUDIT - FOR TABLUE TAB
+    @AuraEnabled
+    public static List<Mashup_Management__c>getTableauReport(){
+        return [ SELECT id,Icon_BG_Color__c,Icon__c,Display_Name__c,Target_URL__c FROM Mashup_Management__c WHERE Group__c =: 'Tableau' AND Is_Active__c =: true ORDER BY Sort_Order__c ASC];
+    }
+    //END ADDED BY MUDIT - FOR TABLUE TAB
+   
+    //FOR VF PAGE - MUDIT
+    public string selectedValue{get;set;}
+    public string iframeSRC{get;set;}
+    public string mashupName{get;set;}
+    public List<SelectOption> getMashupRecordDisplayNames_VF(){    
+        id recordId = ApexPages.currentPage().getParameters().get('id');
+        wrapperClassDisplayNames returnWrapper = getMashupRecordDisplayNames( recordId );
+        List<SelectOption> options = new List<SelectOption>();
+        //options.add(new SelectOption('', 'Select Report' ));
+        for( Mashup_Management__c MM : returnWrapper.BOCommercialMashupRecords ){
+            options.add(new SelectOption(MM.Name, MM.Display_Name__c ));
+            if( MM.Name == 'Business Overview Page -- Commercial' ){
+                mashupName = MM.Name;
+                iframeSRC = MM.Target_URL__c;
+                selectedValue = MM.Name;
+            }
+        }
+        return options;        
+    }
+   
+    public void onChangeSelectVF(){
+        system.debug('HERE');
+        system.debug(':::selectedValue::::' + selectedValue);
+        id recordId = ApexPages.currentPage().getParameters().get('id');
+        wrapperClassDisplayNames returnWrapper = getMashupRecordDisplayNames( recordId );
+        for( Mashup_Management__c MM : returnWrapper.BOCommercialMashupRecords ){
+            if( MM.Name == selectedValue ){
+                mashupName = MM.Name;
+                iframeSRC = MM.Target_URL__c;
+                selectedValue = MM.Name;
+            }
+        }
+        system.debug(':::selectedValue::::' + selectedValue);
+        system.debug(':::iframeSRC::::' + iframeSRC);
+    }
+   
+    /* Start of Code - MB - 09/10/18 */
+    @AuraEnabled
+    public static String getOrderDetail(Id recordId) {
+        Mashup_Management__c mashup = new Mashup_Management__c();
+        String url='';  
+        Order_Item_Approval__c orderAppr = new Order_Item_Approval__c();
+        mashup = Mashups_CC.getMashupRecord('View Sample Order');
+        System.debug('recordId: ' + recordId);
+        if(recordId != null){
+            orderAppr = [SELECT Id, Sample_Order__c, Global_Account_Id__c , Sample_Order__r.External_ID__c, Sample_Order__r.OrderNumber_for_Mashup__c
+                         FROM Order_Item_Approval__c WHERE Id =: recordId];
+            url = mashup.Target_URL__c;
+            System.debug('URL: ' + url);
+            if(orderAppr.Global_Account_Id__c != null){
+                url = url.replace('AccountId__c', orderAppr.Global_Account_Id__c);
+            }
+            if(orderAppr.Sample_Order__r.External_ID__c != null){
+                url = url.replace('OrderId__c', orderAppr.Sample_Order__r.OrderNumber_for_Mashup__c);
+            }
+        }
+        system.debug('URL >>>>>>>>'+url);
+        return url;
+    }
+    /* End of Code - MB - 09/10/18 */
+   
+    /***************** VF CODE ADDED BY MUDIT - 20-06-2019 *****************/
+   
+    //public string gridProductIdVF{get;set;}
+    public boolean isDesktop{get;set;}
+   
+    public string getMashupRecordNewVF( ) {
+        //string userAgent = ApexPages.currentPage().getHeaders().get('USER-AGENT');        
+        isDesktop = UserInfo.getUiTheme() != 'Theme4t';
+        //string recordIdVF = ;        
+        return getMashupRecordNew(
+            'Mohawk Xchange -- Residential',
+            ApexPages.currentPage().getParameters().get( 'id' ),
+            ''
+        );
+    }
+    /***************** VF CODE ADDED BY MUDIT - 20-06-2019 *****************/
+}
