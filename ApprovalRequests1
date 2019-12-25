@@ -1,0 +1,342 @@
+COMPONENT
+<aura:component access="global" implements="force:appHostable" controller="ApprovalRequest1_CC">
+    <!-- Attributes -->
+    <aura:attribute name="WorkitemList" type="Object"/>
+    <aura:attribute name="WorkitemColumns" type="List"/>
+    <aura:attribute name="device" type="String" default="{!$Browser.formFactor}"/>
+    <aura:attribute name="dataMap" type="Map" />
+    <aura:attribute name="statusMessage" type="String" default="No Records to display"/>
+    <aura:attribute name="filterOptions" type="List" />   
+    <aura:attribute name="selectedfilterOptions" type="String[]" default="[]" />        
+    <aura:attribute name="tabLabel" type="String" />
+    <aura:attribute name="optionMap" type="Map" />
+    <!-- Attribute -->
+    
+    <!-- Handers  -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <!-- Handlers -->
+    
+    <!-- Event Handler -->
+    <aura:handler name="onchange" event="c:genricMultiSelectEvt" action="{!c.handleSelectChange}"/>
+    <!-- Event Handler -->
+    <div style="position:static; transform:none;height:100%">
+        <div class="slds-page-header--object-home slds-page-header slds-shrink-none panel-header" role="banner"
+             style="position:fixed; width:98.75%;height:8%;z-index:10">
+            <div class="slds-grid">
+                <div class="slds-media">
+                    <div class="slds-media__figure">
+                        <span class="uiImage">
+                            <img alt="ApprovalRequest" src="{!$Resource.SLDSIcons + '/standard/approval_60.png'}" title="People" style="background:rgb(220, 216, 97); width:2rem; height:2rem"/>
+                        </span>
+                    </div>
+                    <div class="slds-media__body slds-text-color--weak uiOutputText" style="font-size:12px; font-family:'Salesforce Sans',Arial,sans-serif; text-overflow: ellipsis;">
+                        <nav role="navigation" aria-label="Breadcrumbs">
+                            <ol class="slds-breadcrumb slds-list--horizontal">
+                                <li class="slds-breadcrumb__item slds-line-height--reset">
+                                    <span class="uiOutputText" data-aura-class="uiOutputText">
+                                        Approval Requests
+                                    </span>
+                                </li>
+                            </ol>
+                        </nav>
+                        <h1 class="slds-page-header__title slds-text-color--default slds-p-right--x-small">
+                            <span class="triggerLinkText selectedListView uiOutputText forceListViewPicker" data-aura-class="uiOutputText forceListViewPicker">
+                                Items to Approve
+                            </span>
+                        </h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>&nbsp;</div>
+        <div>&nbsp;</div>
+        <div>&nbsp;</div>
+        <div>&nbsp;</div>
+        <div style="width:30%">
+        <c:genericMultiSelectNew label="Approval Filter" options="{!v.filterOptions}" selectedItems="{!v.selectedfilterOptions}" sorting="false"/>
+        </div>
+        <div>&nbsp;</div>
+        <div>&nbsp;</div>
+        <div class="slds-grid" style="height:100%">
+            
+            <!-- Tab iteration -->
+            <!-- 
+            <aura:iteration items="{!v.dataMap}" var="map" indexVar="index" >
+             {!map.key} - {!map.value}	
+            </aura:iteration>
+        	-->                                    
+            
+            <lightning:tabset > 
+            <aura:iteration items="{!v.dataMap}" var="map" indexVar="index" >
+                                   
+                    <lightning:tab label="{!map.key}" onactive="{!c.changeMultiSelectFilter}" id="{!map.key}" >
+                        <div class="slds-show" aura-id="list-page">
+                            <!--<ul class="slds-has-dividers__around-space">-->                            
+                            <aura:renderIf isTrue="{!map.value.length > 0}">
+                                <aura:if isTrue="{!v.device == 'PHONE'}">
+                                    <ui:scrollerWrapper class="wrap-scroll">
+                                        <div class="slds-has-dividers--around-space">
+                                            
+                                            <!-- table starts here -->
+                                            <aura:iteration items="{!map.value}" var="workitem">
+                                                <div class="slds-item slds-m-right--xx-small" data-name="{!workitem.name}"
+                                                     data-id="{!workitem.id}" onclick="{!c.openDetailPage}" style="width:100%">
+                                                    <div class="slds-tile slds-tile--board">
+                                                        <div class="slds-tile slds-media">
+                                                            <div class="slds-media__body">
+                                                                <h3 class="slds-truncate" title="name">
+                                                                    <span class="workitem-name">{!workitem.name}</span>
+                                                                </h3>
+                                                                <div class="slds-tile__detail slds-text-body--small">
+                                                                    <dl class="slds-list--horizontal slds-wrap">
+                                                                        <dt class="slds-item--label slds-text-color--weak slds-truncate"
+                                                                            title="objectType">Type:
+                                                                        </dt>
+                                                                        <dd class="slds-item--detail slds-truncate">{!workitem.objectType}</dd>
+                                                                        <dt class="slds-item--label slds-text-color--weak slds-truncate"
+                                                                            title="submittedBy">Submitted By:
+                                                                        </dt>
+                                                                        <dd class="slds-item--detail slds-truncate">{!workitem.submittedBy}</dd>
+                                                                        <dt class="slds-item--label slds-text-color--weak"
+                                                                            title="submittedDate">Submitted Date:
+                                                                        </dt>
+                                                                        <dd class="slds-item--detail slds-truncate">{!workitem.submittedDate}</dd>
+                                                                    </dl>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </aura:iteration>
+                                        </div>
+                                    </ui:scrollerWrapper>
+                                    <aura:set attribute="else">  
+                                        
+                                        
+                                        <div style="position:static; z-index:10; transform:none">
+                                            <table class="slds-table slds-table--bordered slds-table_resizable-cols slds-table--fixed-layout border-bottom-none" role="grid">
+                                                <thead>
+                                                    <tr class="slds-text-title--caps">
+                                                        <th class="slds-is-sortable slds-is-resizable" scope="col" aria-label="Name">
+                                                            <a href="javascript:void(0);" class="slds-th__action slds-text-link--reset">
+                                                                <span class="slds-assistive-text">Sort </span>
+                                                                <span class="slds-truncate" title="Name">Related To</span>
+                                                                <span class="slds-assistive-text" aria-live="assertive" aria-atomic="true"></span>
+                                                            </a>
+                                                            <div class="slds-cell-fixed slds-resizable">
+                                                                <label for="cell-resize-handle-205" class="slds-assistive-text">Related To column width</label>
+                                                                <input class="slds-resizable__input slds-assistive-text" type="range"
+                                                                       min="20"
+                                                                       max="1000" id="cell-resize-handle-205"/>
+                                                                <span class="slds-resizable__handle">
+                                                                    <span class="slds-resizable__divider"></span>
+                                                                </span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="slds-is-sortable slds-is-resizable" scope="col"
+                                                            aria-label="objectType">
+                                                            <a href="javascript:void(0);" class="slds-th__action slds-text-link--reset">
+                                                                <span class="slds-assistive-text">Sort </span>
+                                                                <span class="slds-truncate" title="objectType">Type</span>
+                                                                <span class="slds-assistive-text" aria-live="assertive" aria-atomic="true"></span>
+                                                            </a>
+                                                            <div class="slds-cell-fixed slds-resizable">
+                                                                <label for="cell-resize-handle-204" class="slds-assistive-text">objectType column width</label>
+                                                                <input class="slds-resizable__input slds-assistive-text" type="range"
+                                                                       min="20"
+                                                                       max="1000" id="cell-resize-handle-204"/>
+                                                                <span class="slds-resizable__handle">
+                                                                    <span class="slds-resizable__divider"></span>
+                                                                </span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="slds-is-sortable slds-is-resizable" scope="col"
+                                                            aria-label="submittedBy">
+                                                            <a href="javascript:void(0);" class="slds-th__action slds-text-link--reset">
+                                                                <span class="slds-assistive-text">Sort </span>
+                                                                <span class="slds-truncate" title="submittedBy">Submitted By</span>
+                                                                <span class="slds-assistive-text" aria-live="assertive" aria-atomic="true"></span>
+                                                            </a>
+                                                            <div class="slds-cell-fixed slds-resizable">
+                                                                <label for="cell-resize-handle-204" class="slds-assistive-text">submittedBy Column width</label>
+                                                                <input class="slds-resizable__input slds-assistive-text" type="range"
+                                                                       min="20"
+                                                                       max="1000" id="cell-resize-handle-204"/>
+                                                                <span class="slds-resizable__handle">
+                                                                    <span class="slds-resizable__divider"></span>
+                                                                </span>
+                                                            </div>
+                                                        </th>
+                                                        <th class="slds-is-sortable slds-is-resizable" scope="col"
+                                                            aria-label="submittedDate">
+                                                            <a href="javascript:void(0);" class="slds-th__action slds-text-link--reset">
+                                                                <span class="slds-assistive-text">Sort </span>
+                                                                <span class="slds-truncate" title="submittedDate">Submitted Date</span>
+                                                                <span class="slds-assistive-text" aria-live="assertive" aria-atomic="true"></span>
+                                                            </a>
+                                                            <div class="slds-cell-fixed slds-resizable">
+                                                                <label for="cell-resize-handle-204" class="slds-assistive-text">submittedDate Column width</label>
+                                                                <input class="slds-resizable__input slds-assistive-text" type="range"
+                                                                       min="20"
+                                                                       max="1000" id="cell-resize-handle-204"/>
+                                                                <span class="slds-resizable__handle">
+                                                                    <span class="slds-resizable__divider"></span>
+                                                                </span>
+                                                            </div>
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                            </table>
+                                            <div class="slds-scrollable--y" height="100%">
+                                                <!--<ui:scrollerWrapper class="wrap-scroll">-->
+                                                <table class="slds-table slds-table--bordered slds-table--fixed-layout slds-no-row-hover" role="grid">
+                                                    <tbody>
+                                                        <aura:iteration items="{!map.value}" var="workitem">
+                                                            <tr class="slds-hint-parent">
+                                                                <td role="gridcell">
+                                                                    <div class="slds-truncate" data-id="{!workitem.id}" onclick="{!c.openDetailPage}" title="name"><a href="javascript:void(0);">{!workitem.name}</a></div>
+                                                                </td>
+                                                                <td role="gridcell">
+                                                                    <div class="slds-truncate" title="objectType">{!workitem.objectType}</div>
+                                                                </td>
+                                                                <td role="gridcell">
+                                                                    <div class="slds-truncate" data-id="{!workitem.submittedById}" onclick="{!c.openDetailPage}" title="submittedBy"><a href="javascript:void(0);">{!workitem.submittedBy}</a></div>
+                                                                </td>
+                                                                <td role="gridcell">
+                                                                    <div class="slds-truncate " title="submittedDate">{!workitem.submittedDate}</div>
+                                                                </td>
+                                                            </tr>
+                                                        </aura:iteration>
+                                                    </tbody>
+                                                </table>
+                                                <!--</ui:scrollerWrapper>-->
+                                            </div>
+                                            <div class="slds-is-relative slds-p-top--small slds-p-bottom--small infinite-loading">
+                                                
+                                            </div>
+                                        </div>
+                                        
+                                    </aura:set> 
+                                </aura:if>  
+                                <aura:set attribute="else">
+                                    
+                                    <p class="slds-text-heading--small slds-p-bottom--medium slds-p-top--medium">{!v.statusMessage}</p>
+                                    
+                                </aura:set>
+                            </aura:renderIf>
+                            <div>&nbsp;</div>
+                            <div>&nbsp;</div>
+                            <!--</ul>-->
+                        </div>                        	         		          
+                    </lightning:tab>                                
+            </aura:iteration>    
+            </lightning:tabset>
+        </div>
+        <lightning:spinner variant="brand" size="medium" class="slds-hide" aura:id="spinner"/>
+    </div>
+</aura:component>
+
+CONTROLLER
+({
+	doInit : function(component, event, helper) {
+        console.log('Device type : ' + component.get('v.device'));
+		helper.getWorkitemList(component, event);
+	},
+    openDetailPage: function (component, event, helper) {
+        var urlEvent = $A.get("e.force:navigateToSObject");
+        urlEvent.setParams({
+            "recordId" : event.currentTarget.dataset.id});
+        urlEvent.fire();
+  },
+  changeMultiSelectFilter : function( component, event, helper ){
+      console.log('In changeMultiSelectFilter --> ');
+      var tabLabel = event.getSource().get("v.id");  
+      component.set("v.tabLabel", tabLabel)      
+      console.log('tabLabel --> '+tabLabel);
+      var optionMap = component.get("v.optionMap");      
+      component.set( "v.filterOptions",optionMap[tabLabel] );       
+  },    
+  handleSelectChange: function(component, event, helper) {      
+      console.log("In handleSelectChange --> ");
+      var data = event.getParam("data");      
+      console.log("data --> "+JSON.stringify( data[0].values ));
+      var values = data[0].values;
+      var tabLabel = component.get("v.tabLabel");
+      var optionMap = component.get( "v.optionMap" );                                     
+      for( var i = 0;i<optionMap[tabLabel].length;i++ ){
+          if( values.length > 0 ){
+              console.log( 'In If --> ' );
+              console.log( 'index val --> '+values.indexOf(optionMap[tabLabel][i].value) );
+              if( values.indexOf(optionMap[tabLabel][i].value) != -1 ){
+                  optionMap[tabLabel][i].selected = true;	    	   
+              }              
+          }else{ 
+              optionMap[tabLabel][i].selected = false;		
+          }              
+      }/* End of for */
+      console.log( 'List --> '+JSON.stringify( optionMap[tabLabel] ) );
+      component.set( "v.optionMap",optionMap );
+      component.set( "v.filterOptions",optionMap[tabLabel] );         
+  },
+})
+
+HELPER
+({
+    getWorkitemList : function(component, event) {
+        var spinner = component.find('spinner');
+        $A.util.addClass(spinner, 'slds-show');
+        $A.util.removeClass(spinner, 'slds-hide');
+        var action = component.get('c.getApprovalWorkitems');
+        action.setCallback(this, function (response) {
+            var state = response.getState();
+            if (component.isValid() && state === 'SUCCESS') {                                
+                var resultList = response.getReturnValue();                
+                console.log( 'resultList --> '+resultList );
+                console.log( 'resultList --> '+JSON.stringify( response.getReturnValue() ) );                                                
+                console.log( 'Length --> '+resultList.appReqList.length );
+                var map = {};
+                
+                // For Data
+                for( var i = 0;i<resultList.appReqList.length;i++ ){
+                    console.log( 'Status --> '+resultList.appReqList[i].status );
+                    map[resultList.appReqList[i].status] = map[resultList.appReqList[i].status] || []
+                    map[resultList.appReqList[i].status].push( resultList.appReqList[i] );
+                }           
+                var custs = [];
+                for(var key in map){
+                    custs.push({value:map[key], key:key});
+                }
+                console.log( 'map --> '+JSON.stringify( custs ) );
+                component.set("v.dataMap", custs );
+                var dataMap = component.get( "v.dataMap" );
+                console.log( 'Map value --> '+dataMap )
+                component.set('v.WorkitemList', resultList.appReqList);
+                console.log(component.get('v.WorkitemList'));
+                
+                //For Filter Map
+                var optionMap = {};
+                for(var key in resultList.optionsMap){
+                    console.log('Key --> '+key);
+                    var options = [];
+                    for( var i=0;i<resultList.optionsMap[key].length;i++ ){
+                        options.push({
+                            label: resultList.optionsMap[key][i],
+                            value: i+1 ,                        
+                            selected: false 
+                        });
+                    }
+                    optionMap[key] = options;  
+                }
+                console.log( 'optionMap --> '+JSON.stringify( optionMap ) );
+                component.set( "v.optionMap",optionMap );  
+            }else{
+                alert('Error occured. Please try after sometime or contact System Administrator');
+            }
+            console.log(component.get('v.WorkitemList'));
+            $A.util.addClass(spinner, 'slds-hide');
+            $A.util.removeClass(spinner, 'slds-show');
+        });
+        $A.enqueueAction(action);
+        
+    }
+})
