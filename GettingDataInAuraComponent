@@ -14,3 +14,13 @@ Map<String, List<PatientConnect__PC_Engagement_Program_Service__c>> m1 = new Map
             m1.put(System.Label.Option_Services,optionServices);
             m1.put( System.Label.HCP_Service, optionHCPServices );
             return m1;
+
+DECLARING VARIABLES
+
+<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="optionServices" type="sObject[]"/>
+    <aura:attribute name="existingServices" type="sObject[]"/>
+    <aura:attribute name="hcpServices" type="sObject[]"/>
+    <aura:attribute name="enableConsent" type="boolean" default="false"/>
+
+    
