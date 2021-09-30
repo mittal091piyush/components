@@ -1,0 +1,16 @@
+ACCESSING DATA
+
+if (component.isValid() && state === "SUCCESS") {
+                var returnValue = response.getReturnValue();
+                console.log( 'returnValue --> '+JSON.stringify( returnValue ) );
+				component.set("v.existingServices", returnValue.selService);
+                component.set("v.optionServices", returnValue.optionServices);
+                console.log( "optionServices --> "+JSON.stringify( returnValue.selService ) );
+                console.log( "optionServices --> "+JSON.stringify( returnValue.optionServices ) ); 
+                
+PACKING DATA
+Map<String, List<PatientConnect__PC_Engagement_Program_Service__c>> m1 = new Map<String, List<PatientConnect__PC_Engagement_Program_Service__c>>();
+            m1.put(System.Label.selService,selService);
+            m1.put(System.Label.Option_Services,optionServices);
+            m1.put( System.Label.HCP_Service, optionHCPServices );
+            return m1;
